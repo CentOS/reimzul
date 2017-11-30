@@ -1,0 +1,20 @@
+[Unit]
+Description=Reimzul Worker %i
+DefaultDependencies=no
+After=network.target
+After=stunnel.target
+
+[Install]
+WantedBy=multi-user.target
+Alias=reimzul-worker.target
+
+[Service]
+User=reimzul
+WorkingDirectory=/srv/build/code
+Type=simple
+ExecStart=/srv/build/code/worker.py
+ExecStop=/usr/bin/kill $MAINPID
+RemainAfterExit=yes
+Restart=always
+RestartSec=1
+
