@@ -11,8 +11,8 @@ You need to call the script like this : $0 -arguments
  -d : disttag to use in mock
  -t : mock target/config to use and push to 
  -a : architecture
+ -p : timestamp for the resultdir
  -h : display this help
-
 EOF
 }
 
@@ -23,7 +23,7 @@ if [ -z "$1" ] ; then
 fi
 }
 
-while getopts "hs:d:t:a:" option
+while getopts "hs:d:t:a:p:" option
 do
   case ${option} in
     h)
@@ -42,6 +42,9 @@ do
     a)
       arch=${OPTARG}
       ;;
+    p)
+      timestamp=${OPTARG}
+      ;;
     ?)
       usage
       exit
@@ -53,15 +56,15 @@ varcheck ${srpm_pkg}
 varcheck ${disttag}
 varcheck ${target}
 varcheck ${arch}
+varcheck ${timestamp}
 
 
-tmp_dir=$(mktemp -d)
-curl --silent http://localhost:11080/reimzul-incoming/${srpm_pkg} --output ${tmp_dir}/${srpm_pkg}
 pkg_name=$(rpm -qp --queryformat '%{name}\n' ${tmp_dir}/${srpm_pkg})
 evr=$(rpm -qp --queryformat '%{version}-%{release}\n' ${tmp_dir}/${srpm_pkg})
-resultdir=/srv/build/logs/${target}/${pkg_name}/$(date +%Y%m%d%H%M%S)/${evr}.${arch}/
+resultdir=/srv/build/logs/${target}/${pkg_name}/${timestamp}/${evr}.${arch}/
 mkdir -p ${resultdir}
 mock -r ${target} --configdir=/srv/build/config/ --resultdir=${resultdir} --define "dist ${disttag}" ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
+export mock_exit_code="$?"
 rsync -a --port=11874 /srv/build/logs/${target}/${pkg_name}/ localhost::reimzul-bstore/repo/${target}/${pkg_name}/
 rm -Rf ${resultdir}
-rm -Rf ${tmp_dir}
+exit ${mock_exit_code}
