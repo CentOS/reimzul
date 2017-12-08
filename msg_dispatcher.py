@@ -27,7 +27,6 @@ def log2file(jbody):
 def sendmail(jbody):
   arch = jbody['arch']
   email_to = notify_list[arch]
-  print 'url %s/%s/%s/%s/%s.%s/root.log' % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'],jbody['arch'])
   root_log = urllib2.urlopen("%s/%s/%s/%s/%s.%s/root.log" % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'],jbody['arch']))
   root_log = root_log.readlines()
   build_log = urllib2.urlopen("%s/%s/%s/%s/%s.%s/build.log" % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'],jbody['arch']))
@@ -59,7 +58,11 @@ def sendmail(jbody):
   smtp_srv.sendmail(email_from,email_to.split(','), text)
   smtp_srv.quit()
 
-
+def log2mongo(jbody):
+  mongo_client = pymongo.MongoClient()
+  db = mongo_client.reimzul
+  doc_id = db.notify_history.insert_one(jbody)
+  mongo_client.close()
 
 
 def main():
@@ -71,6 +74,7 @@ def main():
     job = bs.reserve()
     jbody = json.loads(job.body)
     log2file(jbody)
+    log2mongo(jbody)
     if jbody['status'] == 'Success' or jbody['status'] == 'Failed':
       sendmail(jbody)
     job.delete()
