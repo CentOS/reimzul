@@ -3,6 +3,10 @@
 # This script accepts multiple parameters
 # See usage() for required parameters
 
+# Some variables
+reimzul_basedir="/srv/reimzul/"
+bstore_baseurl="http://localhost:11081/bstore"
+
 function usage() {
 cat << EOF
 
@@ -61,10 +65,22 @@ varcheck ${timestamp}
 
 pkg_name=$(rpm -qp --queryformat '%{name}\n' ${tmp_dir}/${srpm_pkg})
 evr=$(rpm -qp --queryformat '%{version}-%{release}\n' ${tmp_dir}/${srpm_pkg})
-resultdir=/srv/build/logs/${target}/${pkg_name}/${timestamp}/${evr}.${arch}/
+resultdir=${reimzul_basedir}/results/${target}/${pkg_name}/${timestamp}/${evr}.${arch}/
 mkdir -p ${resultdir}
-mock -r ${target} --configdir=/srv/build/config/ --resultdir=${resultdir} --define "dist ${disttag}" ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
+
+# Import needed mock config files and replacing baseurl
+cp ${reimzul_basedir}/mock_configs/{site-defaults.cfg,logging.ini} ${resultdir}
+
+if [ -e "${reimzul_basedir}/mock_configs/${pkg_name}.cfg" ] ; then
+  mock_cfg="${reimzul_basedir}/mock_configs/${pkg_name}.cfg"
+else
+  mock_cfg="${reimzul_basedir}/mock_configs/${target}.cfg"
+fi
+
+cat ${mock_cfg} | sed "s#http://repohost#${bstore_baseurl}#" > ${resultdir}/mock.cfg
+
+mock -r mock --configdir=${resultdir} --resultdir=${resultdir} --define "dist ${disttag}" ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
 export mock_exit_code="$?"
-rsync -a --port=11874 /srv/build/logs/${target}/${pkg_name}/ localhost::reimzul-bstore/repo/${target}/${pkg_name}/
+rsync -a --port=11874 ${reimzul_basedir}/results/${target}/${pkg_name}/ localhost::reimzul-bstore/repo/${target}/${pkg_name}/
 rm -Rf ${resultdir}
 exit ${mock_exit_code}

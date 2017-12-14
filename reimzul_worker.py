@@ -57,9 +57,8 @@ def main():
     bs_notify(jbody)
 
     # launching job
-    build_cmd = "/srv/build/code/submit_mock.sh -s %s -d %s -t %s -a %s -p %s" % (local_srpm, jbody['disttag'], jbody['target'], jbody['arch'], timestamp)
+    build_cmd = "/srv/reimzul/code/submit_mock.sh -s %s -d %s -t %s -a %s -p %s" % (local_srpm, jbody['disttag'], jbody['target'], jbody['arch'], timestamp)
     print build_cmd
-    print jbody['evr']
     process = subprocess.call( build_cmd, shell = True) 
     if process == 0:
       jbody['status'] = 'Success'

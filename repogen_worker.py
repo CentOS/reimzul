@@ -8,7 +8,7 @@ import subprocess, commands
 
 # Some variables
 reimzul_repo_basedir = '/srv/reimzul/bstore/repo/'
-reimzul_repo_cachedir = '/srv/reimzul/bstore/repo/'
+reimzul_repo_cachedir = '/srv/reimzul/bstore/cache/'
 
 
 bs = beanstalkc.Connection(connect_timeout=2)
