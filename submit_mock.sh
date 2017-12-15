@@ -68,6 +68,7 @@ evr=$(rpm -qp --queryformat '%{version}-%{release}\n' ${tmp_dir}/${srpm_pkg})
 resultdir=${reimzul_basedir}/results/${target}/${pkg_name}/${timestamp}/${evr}.${arch}/
 mkdir -p ${resultdir}
 
+
 # Import needed mock config files and replacing baseurl
 cp ${reimzul_basedir}/mock_configs/{site-defaults.cfg,logging.ini} ${resultdir}
 
@@ -77,10 +78,15 @@ else
   mock_cfg="${reimzul_basedir}/mock_configs/${target}.cfg"
 fi
 
-cat ${mock_cfg} | sed "s#http://repohost#${bstore_baseurl}#" > ${resultdir}/mock.cfg
+cat ${mock_cfg} | sed "s#http://repohost#${bstore_baseurl}#" | sed "s#TARGETNAME#${target}-${timestamp}#" > ${resultdir}/mock.cfg
 
-mock -r mock --configdir=${resultdir} --resultdir=${resultdir} --define "dist ${disttag}" ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
+mock -r mock --configdir=${resultdir} --resultdir=${resultdir} --define "dist ${disttag}" --cleanup-after ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
 export mock_exit_code="$?"
+
+# Checking if {build,root}.log exist
+for file in build.log root.log ; do
+  test -f ${resultdir}/${file} || cp ${resultdir}/stderr ${resultdir}/${file}
+done
 rsync -a --port=11874 ${reimzul_basedir}/results/${target}/${pkg_name}/ localhost::reimzul-bstore/repo/${target}/${pkg_name}/
-rm -Rf ${resultdir}
+rm -Rf ${reimzul_basedir}/results/${target}/${pkg_name}/${timestamp}
 exit ${mock_exit_code}
