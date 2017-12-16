@@ -70,12 +70,12 @@ mkdir -p ${resultdir}
 
 
 # Import needed mock config files and replacing baseurl
-cp ${reimzul_basedir}/mock_configs/{site-defaults.cfg,logging.ini} ${resultdir}
+cp ${reimzul_basedir}/mock_configs/mock/{site-defaults.cfg,logging.ini} ${resultdir}
 
-if [ -e "${reimzul_basedir}/mock_configs/${pkg_name}.cfg" ] ; then
-  mock_cfg="${reimzul_basedir}/mock_configs/${pkg_name}.cfg"
+if [ -e "${reimzul_basedir}/mock_configs/mock/${pkg_name}.cfg" ] ; then
+  mock_cfg="${reimzul_basedir}/mock_configs/mock/${pkg_name}.cfg"
 else
-  mock_cfg="${reimzul_basedir}/mock_configs/${target}.cfg"
+  mock_cfg="${reimzul_basedir}/mock_configs/mock/${target}.cfg"
 fi
 
 cat ${mock_cfg} | sed "s#http://repohost#${bstore_baseurl}#" | sed "s#TARGETNAME#${target}-${timestamp}#" > ${resultdir}/mock.cfg
