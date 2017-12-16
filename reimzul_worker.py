@@ -16,59 +16,68 @@ builder_arch = os.uname()[4]
 builder_fqdn = os.uname()[1]
 srpm_baseurl = 'http://localhost:11080/reimzul-incoming/'
 
-
-bs = beanstalkc.Connection(connect_timeout=2)
-
-bs.watch(builder_arch)
-
-def bs_notify(jbody):
+def bs_notify(bs,jbody):
   bs.use('notify')
   bs.put(json.dumps(jbody))
 
-def bs_createrepo(jbody):
+def bs_createrepo(bs,jbody):
   bs.use('createrepo')
   bs.put(json.dumps(jbody))
 
 def main():
-  while os.path.isfile('stop') == False:
-    print 'Waiting for jobs in queue %s' % builder_arch
-    job = bs.reserve()
-    jbody = json.loads(job.body)
+  bs_connection = False
+  while True:
+    try:
+      if not bs_connection:
+        bs = beanstalkc.Connection(connect_timeout=2)
+        bs.watch(builder_arch)
+        # Special case for x86_64, watching also i386
+        if builder_arch == 'x86_64':
+          bs.watch('i386')
 
-    job.delete()
+      print 'Waiting for jobs in queue %s' % builder_arch
+   
+      job = bs.reserve()
+      jbody = json.loads(job.body)
 
-    # Notifying controller
-    jbody['status'] = 'Building'
-    jbody['builder_fqdn'] = builder_fqdn
+      job.delete()
 
-    print "building %s for arch %s on builder %s" % (jbody['srpm'],jbody['arch'],builder_fqdn)
-    timestamp = os.popen('date +%Y%m%d%H%M%S').read().strip('\n')
-    tmp_dir = tempfile.mkdtemp()
-    remote_srpm = srpm_baseurl + jbody['srpm']
-    local_srpm = tmp_dir+'/'+ jbody['srpm']
-    urllib.urlretrieve(remote_srpm, local_srpm)
-    rpm_file = os.open(local_srpm, os.O_RDONLY)
-    ts = rpm.ts()
-    hdr = ts.hdrFromFdno(rpm_file)
-    os.close(rpm_file)
-    jbody['evr'] = hdr[rpm.RPMTAG_VERSION] +'-'+ hdr[rpm.RPMTAG_RELEASE]
-    jbody['pkgname'] = hdr[rpm.RPMTAG_NAME]
-    jbody['timestamp'] = timestamp  
-    bs_notify(jbody)
+      # Notifying controller
+      jbody['status'] = 'Building'
+      jbody['builder_fqdn'] = builder_fqdn
 
-    # launching job
-    build_cmd = "/srv/reimzul/code/submit_mock.sh -s %s -d %s -t %s -a %s -p %s" % (local_srpm, jbody['disttag'], jbody['target'], jbody['arch'], timestamp)
-    print build_cmd
-    process = subprocess.call( build_cmd, shell = True) 
-    if process == 0:
-      jbody['status'] = 'Success'
-      bs_notify(jbody)
-      bs_createrepo(jbody)
-    else:
-      jbody['status'] = 'Failed'
-      bs_notify(jbody)
-    shutil.rmtree(tmp_dir)
-    time.sleep(1)
+      print "building %s for arch %s on builder %s" % (jbody['srpm'],jbody['arch'],builder_fqdn)
+      timestamp = os.popen('date +%Y%m%d%H%M%S').read().strip('\n')
+      tmp_dir = tempfile.mkdtemp()
+      remote_srpm = srpm_baseurl + jbody['srpm']
+      local_srpm = tmp_dir+'/'+ jbody['srpm']
+      urllib.urlretrieve(remote_srpm, local_srpm)
+      rpm_file = os.open(local_srpm, os.O_RDONLY)
+      ts = rpm.ts()
+      hdr = ts.hdrFromFdno(rpm_file)
+      os.close(rpm_file)
+      jbody['evr'] = hdr[rpm.RPMTAG_VERSION] +'-'+ hdr[rpm.RPMTAG_RELEASE]
+      jbody['pkgname'] = hdr[rpm.RPMTAG_NAME]
+      jbody['timestamp'] = timestamp  
+      bs_notify(bs,jbody)
+
+      # launching job
+      build_cmd = "/srv/reimzul/code/submit_mock.sh -s %s -d %s -t %s -a %s -p %s" % (local_srpm, jbody['disttag'], jbody['target'], jbody['arch'], timestamp)
+      print build_cmd
+      process = subprocess.call( build_cmd, shell = True) 
+      if process == 0:
+        jbody['status'] = 'Success'
+        bs_notify(bs,jbody)
+        bs_createrepo(bs,jbody)
+      else:
+        jbody['status'] = 'Failed'
+        bs_notify(bs,jbody)
+      shutil.rmtree(tmp_dir)
+      time.sleep(1)
+    except beanstalkc.SocketError:
+      bs_connection = False
+      time.sleep(2)
+      continue
 
 if __name__ == '__main__':
   main()
