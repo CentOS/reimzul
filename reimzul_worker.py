@@ -34,6 +34,7 @@ def main():
         # Special case for x86_64, watching also i386
         if builder_arch == 'x86_64':
           bs.watch('i386')
+      bs_connection = True
 
       print 'Waiting for jobs in queue %s' % builder_arch
    
@@ -72,6 +73,24 @@ def main():
       else:
         jbody['status'] = 'Failed'
         bs_notify(bs,jbody)
+
+      # Specific case : chaining i386 automatically for x86_64 builds
+      if jbody['arch'] == 'x86_64':
+        jbody['arch'] = 'i386'
+        jbody['status'] = 'Building'
+        bs_notify(bs,jbody)
+        build_cmd = "/srv/reimzul/code/submit_mock.sh -s %s -d %s -t %s -a %s -p %s" % (local_srpm, jbody['disttag'], jbody['target'], jbody['arch'], timestamp)
+        print build_cmd
+        process = subprocess.call( build_cmd, shell = True) 
+        if process == 0:
+          jbody['status'] = 'Success'
+          bs_notify(bs,jbody)
+          bs_createrepo(bs,jbody)
+        else:
+          jbody['status'] = 'Failed'
+          bs_notify(bs,jbody)
+
+
       shutil.rmtree(tmp_dir)
       time.sleep(1)
     except beanstalkc.SocketError:
