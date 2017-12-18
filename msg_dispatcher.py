@@ -11,7 +11,7 @@ import pymongo
 
 # Some variables
 logfile = '/var/log/reimzul/reimzul.log'
-notify_list = {'x86_64': 'buildsys@centos.org', 'armhfp': 'arrfab@centos.org , fabian.arrotin@arrfab.net', 'aarch64': 'arrfab@centos.org'}
+notify_list = {'x86_64': 'hughesjr@centos.org, arrfab@centos.org', 'i386': 'hughesjr@centos.org, arrfab@centos.org', 'armhfp': 'hughesjr@centos.org, arrfab@centos.org', 'aarch64': 'hughesjr@centos.org, arrfab@centos.org, jperrin@centos.org'}
 email_from = 'buildsys@centos.org'
 base_url = 'http://localhost:11081/bstore/repo/'
 

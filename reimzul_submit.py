@@ -5,14 +5,15 @@ import beanstalkc
 import sys
 import argparse
 
-build_queues = {'x86_64': 'x86_64', 'armhfp': 'armv7l'}
+# Build queue dictionnary : arched asked and mapped to queue
+build_queues = {'x86_64': 'x86_64', 'armhfp': 'armv7l', 'aarch64': 'aarch64', 'i386': 'i386', 'i686': 'i386'}
 
 parser = argparse.ArgumentParser(description='Reimzul CentOS distributed build client')
 
-parser.add_argument('-s', action="store", dest="srpm", required=True, help='The src.rpm pkg already uploaded in controller node')
-parser.add_argument('-a', action="store", dest="arch", required=True, help='Define the mock architecture to build against')
-parser.add_argument('-t', action="store", dest="target", required=True, help='The target repo to build against/for')
-parser.add_argument('-d', action="store", dest="disttag", required=True, help='Define the mock disttag to use [example: .el7_4]')
+parser.add_argument('-s', '--srpm', action="store", dest="srpm", required=True, help='The src.rpm pkg already uploaded in controller node')
+parser.add_argument('-a', '--arch', action="store", dest="arch", required=True, help='Defines the mock architecture to build against [example: x86_64,armhfp,aarch64,i386,ppc64le,ppc64]')
+parser.add_argument('-t', '--target', action="store", dest="target", required=True, help='The target repo to build against/for, without any arch specified [example: c7.1708.u]')
+parser.add_argument('-d', '--disttag', action="store", dest="disttag", required=True, help='Defines the mock disttag to use [example: .el7_4]')
 
 results = parser.parse_args()
 
@@ -22,12 +23,12 @@ bs = beanstalkc.Connection()
 job = {}
 job['srpm'] = results.srpm
 job['arch'] = results.arch
-job['target'] = results.target
+job['target'] = results.target+'.'+results.arch
 job['disttag'] = results.disttag
 build_queue = build_queues[results.arch]
 
 bs.use(build_queue)
 bs.put(json.dumps(job))
 
-print 'Submitted SRPM %s to build queue %s for target %s' % (results.srpm,build_queue,results.target)
+print 'Submitted SRPM %s to build queue %s for target %s' % (results.srpm,build_queue,job['target'])
 
