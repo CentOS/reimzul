@@ -68,6 +68,9 @@ evr=$(rpm -qp --queryformat '%{version}-%{release}\n' ${tmp_dir}/${srpm_pkg})
 resultdir=${reimzul_basedir}/results/${target}/${pkg_name}/${timestamp}/${evr}.${arch}/
 mkdir -p ${resultdir}
 
+# Ensuring we have last mock config file from git
+cd ${reimzul_basedir}/mock_configs/
+git pull
 
 # Import needed mock config files and replacing baseurl
 cp ${reimzul_basedir}/mock_configs/mock/{site-defaults.cfg,logging.ini} ${resultdir}
