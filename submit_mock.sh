@@ -85,7 +85,7 @@ fi
 
 cat ${mock_cfg} | sed "s#http://repohost#${bstore_baseurl}#" | sed "s#TARGETNAME#${target}-${timestamp}#" > ${resultdir}/mock.cfg
 
-mock -r mock --configdir=${resultdir} --resultdir=${resultdir} --define "dist ${disttag}" --cleanup-after ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
+/usr/bin/mock -r mock --configdir=${resultdir} --resultdir=${resultdir} --define "dist ${disttag}" --cleanup-after ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
 export mock_exit_code="$?"
 
 # Checking if {build,root}.log exist

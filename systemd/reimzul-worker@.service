@@ -9,11 +9,11 @@ WantedBy=multi-user.target
 Alias=reimzul-worker.target
 
 [Service]
-User=reimzul
-WorkingDirectory=/srv/build/code
 Type=simple
-ExecStart=/srv/build/code/worker.py
-ExecStop=/usr/bin/kill $MAINPID
+User=reimzul
+Group=mock
+ExecStart=/srv/reimzul/code/reimzul-worker.py
+ExecStop=/usr/bin/kill -9 $MAINPID
 RemainAfterExit=yes
 Restart=always
 RestartSec=1
