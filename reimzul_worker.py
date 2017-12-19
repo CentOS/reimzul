@@ -34,6 +34,8 @@ def main():
         # Special case for x86_64, watching also i386
         if builder_arch == 'x86_64':
           bs.watch('i386')
+        if builder_arch == 'ppc64':
+          bs.watch('ppc')
       bs_connection = True
 
       print 'Waiting for jobs in queue %s' % builder_arch
@@ -74,9 +76,12 @@ def main():
         jbody['status'] = 'Failed'
         bs_notify(bs,jbody)
 
-      # Specific case : chaining i386 automatically for x86_64 builds
-      if jbody['arch'] == 'x86_64':
-        jbody['arch'] = 'i386'
+      # Specific case : chaining i386/ppc automatically for x86_64/ppc64 builds
+      if jbody['arch'] == 'x86_64' or jbody['arch'] == 'ppc64':
+        if jbody['arch'] == 'x86_64':
+          jbody['arch'] = 'i386'
+        if jbody['arch'] == 'ppc64':
+         jbody['arch'] = 'ppc'        
         jbody['status'] = 'Building'
         bs_notify(bs,jbody)
         build_cmd = "/srv/reimzul/code/submit_mock.sh -s %s -d %s -t %s -a %s -p %s" % (local_srpm, jbody['disttag'], jbody['target'], jbody['arch'], timestamp)

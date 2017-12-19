@@ -11,7 +11,8 @@ import pymongo
 
 # Some variables
 logfile = '/var/log/reimzul/reimzul.log'
-notify_list = {'x86_64': 'hughesjr@centos.org, arrfab@centos.org', 'i386': 'hughesjr@centos.org, arrfab@centos.org', 'armhfp': 'hughesjr@centos.org, arrfab@centos.org', 'aarch64': 'hughesjr@centos.org, arrfab@centos.org, jperrin@centos.org'}
+#notify_list = {'x86_64': 'arrfab@centos.org', 'i386': 'arrfab@centos.org', 'armhfp': 'arrfab@centos.org', 'aarch64': 'arrfab@centos.org'}
+notify_list = {'x86_64': 'hughesjr@centos.org, arrfab@centos.org', 'i386': 'hughesjr@centos.org, arrfab@centos.org', 'armhfp': 'hughesjr@centos.org, arrfab@centos.org', 'aarch64': 'hughesjr@centos.org, arrfab@centos.org, jperrin@centos.org', 'ppc64': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org','ppc64le': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org', 'ppc': 'hughesjr@centos.org, arrfab@centos.org, jpoc@centosproject.org'}
 email_from = 'buildsys@centos.org'
 base_url = 'http://localhost:11081/bstore/repo/'
 
@@ -19,7 +20,7 @@ base_url = 'http://localhost:11081/bstore/repo/'
 def log2file(jbody):
 
   log_file = open(logfile,'a+')
-  log_file.write('[%s] Build job SRPM %s for arch %s builder %s status %s [%s] \r\n' % (time.asctime(),jbody['srpm'],jbody['arch'],jbody['builder_fqdn'],jbody['status'],jbody['evr']) )
+  log_file.write('[%s] Build job SRPM %s (%s) for arch %s builder %s status %s [%s] \r\n' % (time.asctime(),jbody['srpm'],jbody['timestamp'],jbody['arch'],jbody['builder_fqdn'],jbody['status'],jbody['evr']) )
   log_file.close()
 
 def sendmail(jbody):
@@ -33,6 +34,7 @@ def sendmail(jbody):
   body = '#### Reimzul build results ##### \n'
   body += ' Builder   : %s \n' % jbody['builder_fqdn']
   body += ' Package   : %s \n' % jbody['pkgname']
+  body += ' Timestamp   : %s \n' % jbody['timestamp']
   body += ' Status    : %s \n' % jbody['status']
   body += ' Full logs available at %s/%s/%s/%s/%s \n\n' % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'])
   body += '#### Mock output logs ####\n'
@@ -48,7 +50,7 @@ def sendmail(jbody):
   msg = MIMEMultipart()
   msg['From'] = email_from
   msg['To'] = email_to
-  msg['Subject'] = '[reimzul] Build log for pkg %s (%s) on target %s : %s' % (jbody['srpm'],jbody['arch'],jbody['target'],jbody['status'])
+  msg['Subject'] = '[reimzul] Build task %s %s (arch: %s) target %s : %s' % (jbody['timestamp'],jbody['srpm'],jbody['arch'],jbody['target'],jbody['status'])
 
   msg.attach(MIMEText(body, 'plain'))
   smtp_srv = smtplib.SMTP('localhost',25)
