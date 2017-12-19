@@ -83,7 +83,7 @@ else
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${target}.cfg"
 fi
 
-cat ${mock_cfg} | sed "s#http://repohost#${bstore_baseurl}#" | sed "s#TARGETNAME#${target}-${timestamp}#" > ${resultdir}/mock.cfg
+cat ${mock_cfg} | sed "s#http://repohost#${bstore_baseurl}#" | sed "s#TARGETNAME#${pkg_name}-${evr}-${timestamp}-${RANDOM}#" > ${resultdir}/mock.cfg
 
 /usr/bin/mock -r mock --configdir=${resultdir} --resultdir=${resultdir} --define "dist ${disttag}" --cleanup-after ${tmp_dir}/$srpm_pkg >> ${resultdir}/stdout 2>>${resultdir}/stderr
 export mock_exit_code="$?"
