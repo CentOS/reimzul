@@ -28,7 +28,7 @@ def main():
       job.delete()
       repodir = reimzul_repo_basedir + jbody['target'] + '/'
       print "Generating repodata in %s" % repodir
-      createrepo_cmd = "test -d %s || mkdir -p %s ; /usr/bin/createrepo_c -d --update --workers 16 --cachedir %s %s" % (repodir, repodir, reimzul_repo_cachedir, repodir)
+      createrepo_cmd = "test -d %s || mkdir -p %s ; /usr/bin/createrepo_c -d --update --workers 16 --retain-old-md 3 --cachedir %s %s" % (repodir, repodir, reimzul_repo_cachedir, repodir)
       process = subprocess.call(createrepo_cmd, shell=True)
 
     except beanstalkc.SocketError:
