@@ -8,13 +8,27 @@ import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import pymongo
+import paho.mqtt.client as mqtt
+import os 
+import ConfigParser
 
 # Some variables
+config_file = '/etc/reimzul/reimzul.ini'
 logfile = '/var/log/reimzul/reimzul.log'
 #notify_list = {'x86_64': 'arrfab@centos.org', 'i386': 'arrfab@centos.org', 'armhfp': 'arrfab@centos.org', 'aarch64': 'arrfab@centos.org'}
 notify_list = {'x86_64': 'hughesjr@centos.org, arrfab@centos.org', 'i386': 'hughesjr@centos.org, arrfab@centos.org', 'armhfp': 'hughesjr@centos.org, arrfab@centos.org', 'aarch64': 'hughesjr@centos.org, arrfab@centos.org, jperrin@centos.org', 'ppc64': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org','ppc64le': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org', 'ppc': 'hughesjr@centos.org, arrfab@centos.org, jpoc@centosproject.org'}
 email_from = 'buildsys@centos.org'
 base_url = 'http://localhost:11081/bstore/repo/'
+
+# Variables from config file
+config = ConfigParser.SafeConfigParser()
+config.read(config_file)
+mqtt_host = config.get('mqtt', 'host')
+mqtt_port = config.get('mqtt', 'port')
+mqtt_username = config.get('mqtt', 'username')
+mqtt_pass = config.get('mqtt', 'password')
+mqtt_topic = config.get('mqtt', 'topic')
+mqtt_cacert = config.get('mqtt', 'ca_cert')
 
 
 def log2file(jbody):
@@ -64,6 +78,18 @@ def log2mongo(jbody):
   doc_id = db.notify_history.insert_one(jbody)
   mongo_client.close()
 
+def mqtt_on_publish(client,userdata,result):
+  pass
+
+def log2mqtt(jbody):
+  payload = str(jbody)
+  client = mqtt.Client(os.uname()[1])
+  client.tls_set(mqtt_cacert,tls_version=2)
+  client.username_pw_set(mqtt_username,mqtt_pass)
+  client.on_publish = mqtt_on_publish   
+  client.connect(mqtt_host,mqtt_port)
+  client.publish(mqtt_topic, payload)
+  client.disconnect()
 
 def main():
 
@@ -77,6 +103,7 @@ def main():
     log2mongo(jbody)
     if jbody['status'] == 'Success' or jbody['status'] == 'Failed':
       sendmail(jbody)
+      log2mqtt(jbody)
     job.delete()
 
 
