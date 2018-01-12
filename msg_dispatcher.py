@@ -82,13 +82,19 @@ def mqtt_on_publish(client,userdata,result):
   pass
 
 def log2mqtt(jbody):
-  payload = str(jbody)
+  payload = {}
+  payload['srpm'] = jbody['srpm']
+  payload['status'] = jbody['status']
+  payload['target'] = jbody['target']
+  payload['arch'] = jbody['arch']
+  payload['timestamp'] = jbody['timestamp']
+  payload_msg = json.dumps(payload)
   client = mqtt.Client(os.uname()[1])
   client.tls_set(mqtt_cacert,tls_version=2)
   client.username_pw_set(mqtt_username,mqtt_pass)
   client.on_publish = mqtt_on_publish   
   client.connect(mqtt_host,mqtt_port)
-  client.publish(mqtt_topic, payload)
+  client.publish(mqtt_topic, payload_msg)
   client.disconnect()
 
 def main():
