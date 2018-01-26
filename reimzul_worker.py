@@ -57,6 +57,7 @@ def main():
       urllib.urlretrieve(remote_srpm, local_srpm)
       rpm_file = os.open(local_srpm, os.O_RDONLY)
       ts = rpm.ts()
+      ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
       hdr = ts.hdrFromFdno(rpm_file)
       os.close(rpm_file)
       jbody['evr'] = hdr[rpm.RPMTAG_VERSION] +'-'+ hdr[rpm.RPMTAG_RELEASE]
