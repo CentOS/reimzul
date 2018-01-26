@@ -79,6 +79,8 @@ if [ -e "${reimzul_basedir}/mock_configs/mock/${pkg_name}.cfg" ] ; then
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${pkg_name}.cfg"
 elif [ "${arch}" == "i386" ] ; then
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${target/x86_64/i386}.cfg" 
+elif [ "${arch}" == "noarch" ] ; then
+  mock_cfg="${reimzul_basedir}/mock_configs/mock/${target/x86_64/noarch}.cfg" 
 elif [ "${arch}" == "ppc" ] ; then
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${target/ppc64/ppc}.cfg" 
 else

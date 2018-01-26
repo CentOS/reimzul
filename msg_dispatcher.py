@@ -16,7 +16,7 @@ import ConfigParser
 config_file = '/etc/reimzul/reimzul.ini'
 logfile = '/var/log/reimzul/reimzul.log'
 #notify_list = {'x86_64': 'arrfab@centos.org', 'i386': 'arrfab@centos.org', 'armhfp': 'arrfab@centos.org', 'aarch64': 'arrfab@centos.org'}
-notify_list = {'x86_64': 'hughesjr@centos.org, arrfab@centos.org', 'i386': 'hughesjr@centos.org, arrfab@centos.org', 'armhfp': 'hughesjr@centos.org, arrfab@centos.org', 'aarch64': 'hughesjr@centos.org, arrfab@centos.org, jperrin@centos.org', 'ppc64': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org','ppc64le': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org', 'ppc': 'hughesjr@centos.org, arrfab@centos.org, jpoc@centosproject.org'}
+notify_list = {'x86_64': 'hughesjr@centos.org, arrfab@centos.org', 'i386': 'hughesjr@centos.org, arrfab@centos.org', 'noarch': 'hughesjr@centos.org, arrfab@centos.org','armhfp': 'hughesjr@centos.org, arrfab@centos.org', 'aarch64': 'hughesjr@centos.org, arrfab@centos.org, jperrin@centos.org', 'ppc64': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org','ppc64le': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org', 'ppc': 'hughesjr@centos.org, arrfab@centos.org, jpoc@centosproject.org'}
 email_from = 'buildsys@centos.org'
 base_url = 'http://localhost:11081/bstore/repo/'
 
