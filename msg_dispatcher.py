@@ -34,7 +34,7 @@ mqtt_cacert = config.get('mqtt', 'ca_cert')
 def log2file(jbody):
 
   log_file = open(logfile,'a+')
-  log_file.write('[%s] Build job SRPM %s (%s) for arch %s builder %s status %s [%s] \r\n' % (time.asctime(),jbody['srpm'],jbody['timestamp'],jbody['arch'],jbody['builder_fqdn'],jbody['status'],jbody['evr']) )
+  log_file.write('[%s] Build job SRPM %s (%s) for arch %s builder %s status %s [%s] (Scratch job: %s) \r\n' % (time.asctime(),jbody['srpm'],jbody['timestamp'],jbody['arch'],jbody['builder_fqdn'],jbody['status'],jbody['evr'],jbody['scratch']) )
   log_file.close()
 
 def sendmail(jbody):
@@ -108,8 +108,9 @@ def main():
     log2file(jbody)
     log2mongo(jbody)
     if jbody['status'] == 'Success' or jbody['status'] == 'Failed':
-      sendmail(jbody)
-      log2mqtt(jbody)
+      if not jbody['scratch']:
+        sendmail(jbody)
+        log2mqtt(jbody)
     job.delete()
 
 

@@ -15,6 +15,7 @@ parser.add_argument('-a', '--arch', action="store", dest="arch", required=True, 
 parser.add_argument('-t', '--target', action="store", dest="target", required=True, help='The target repo to build against/for, without any arch specified [example: c7.1708.u]')
 parser.add_argument('-d', '--disttag', action="store", dest="disttag", required=True, help='Defines the mock disttag to use [example: .el7_4]')
 parser.add_argument('--now', action="store_true", help='Will prioritize this job in front of the build queue')
+parser.add_argument('--scratch', action="store_true", help='Will just build the pkg but not prepare it in staging-tosign area')
 
 results = parser.parse_args()
 
@@ -29,6 +30,7 @@ job['srpm'] = results.srpm
 job['arch'] = results.arch
 job['target'] = results.target+'.'+results.arch
 job['disttag'] = results.disttag
+job['scratch'] = results.scratch
 build_queue = build_queues[results.arch]
 
 bs.use(build_queue)
