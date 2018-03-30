@@ -97,6 +97,16 @@ def log2mqtt(jbody):
   client.publish(mqtt_topic, payload_msg)
   client.disconnect()
 
+def bs_tosign(bs,jbody):
+  payload = {}
+  payload['pkgname'] = jbody['pkgname']
+  payload['status'] = jbody['status']
+  payload['target'] = jbody['target']
+  payload['arch'] = jbody['arch']
+  payload['timestamp'] = jbody['timestamp']  
+  bs.use('tosign')  
+  bs.put(json.dumps(payload))
+
 def main():
 
   bs = beanstalkc.Connection()
@@ -111,6 +121,7 @@ def main():
       if not jbody['scratch']:
         sendmail(jbody)
         log2mqtt(jbody)
+        bs_tosign(bs,jbody)
     job.delete()
 
 
