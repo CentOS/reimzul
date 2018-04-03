@@ -80,7 +80,12 @@ if [ -e "${reimzul_basedir}/mock_configs/mock/${pkg_name}.cfg" ] ; then
 elif [ "${arch}" == "i386" ] ; then
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${target/x86_64/i386}.cfg" 
 elif [ "${arch}" == "noarch" ] ; then
+  # special case : sanitizing all possible initial arch now submitted as noarch
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${target/x86_64/noarch}.cfg" 
+  mock_cfg="${mock_cfg/ppc64le/noarch}" 
+  mock_cfg="${mock_cfg/ppc64/noarch}" 
+  mock_cfg="${mock_cfg/i386/noarch}" 
+  mock_cfg="${mock_cfg/i686/noarch}" 
 elif [ "${arch}" == "ppc" ] ; then
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${target/ppc64/ppc}.cfg" 
 else
