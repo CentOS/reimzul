@@ -75,8 +75,8 @@ git pull
 # Import needed mock config files and replacing baseurl
 cp ${reimzul_basedir}/mock_configs/mock/{site-defaults.cfg,logging.ini} ${resultdir}
 
-if [ -e "${reimzul_basedir}/mock_configs/mock/${pkg_name}.cfg" ] ; then
-  mock_cfg="${reimzul_basedir}/mock_configs/mock/${pkg_name}.cfg"
+if [ -e "${reimzul_basedir}/mock_configs/mock/${pkg_name}-${evr}.${arch}.cfg" ] ; then
+  mock_cfg="${reimzul_basedir}/mock_configs/mock/${pkg_name}-${evr}.${arch}.cfg"
 elif [ "${arch}" == "i386" ] ; then
   mock_cfg="${reimzul_basedir}/mock_configs/mock/${target/x86_64/i386}.cfg" 
 elif [ "${arch}" == "noarch" ] ; then
