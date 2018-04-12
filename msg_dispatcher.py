@@ -54,12 +54,17 @@ def sendmail(jbody):
   body += '#### Mock output logs ####\n'
   body += '    ========== Mock root log ============ \n'
   for line in root_log[-30:]:
-    body += line
-
+    try:
+      body += line
+    except UnicodeDecodeError:
+      pass
   body += '\n'  
   body += '    ========== Mock build log ========== \n\n'  
   for line in build_log[-80:]:
-    body += line  
+    try:
+      body += line
+    except UnicodeDecodeError:
+      pass 
 
   msg = MIMEMultipart()
   msg['From'] = email_from
