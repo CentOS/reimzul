@@ -1,0 +1,27 @@
+[bstore]
+base_url = http://localhost:11081/bstore/repo/
+
+[logs]
+logfile = /var/log/reimzul/reimzul.log
+
+[mail]
+mail_from = buildsys@mydomain.com
+
+[mail_rcpts]
+x86_64 = me@mydomain.com
+i386 = me@mydomain.com, you@yourdomain.com
+noarch = me@mydomain.com, you@yourdomain.com
+aarch64 = me@mydomain.com, you@yourdomain.com
+armhfp = me@mydomain.com, you@yourdomain.com
+ppc64le = me@mydomain.com, you@yourdomain.com
+ppc64 = me@mydomain.com, you@yourdomain.com
+ppc = me@mydomain.com, you@yourdomain.com
+
+[mqtt]
+host = mqtt.mydomain.com
+port = 8883
+username = myuser
+password = mypass
+ca_cert = /etc/pki/tls/certs/ca-bundle.crt
+topic = /reimzul/builds
+

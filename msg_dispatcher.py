@@ -14,15 +14,19 @@ import ConfigParser
 
 # Some variables
 config_file = '/etc/reimzul/reimzul.ini'
-logfile = '/var/log/reimzul/reimzul.log'
-#notify_list = {'x86_64': 'arrfab@centos.org', 'i386': 'arrfab@centos.org', 'armhfp': 'arrfab@centos.org', 'aarch64': 'arrfab@centos.org'}
-notify_list = {'x86_64': 'hughesjr@centos.org, arrfab@centos.org', 'i386': 'hughesjr@centos.org, arrfab@centos.org', 'noarch': 'hughesjr@centos.org, arrfab@centos.org','armhfp': 'hughesjr@centos.org, arrfab@centos.org', 'aarch64': 'hughesjr@centos.org, arrfab@centos.org, jperrin@centos.org', 'ppc64': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org','ppc64le': 'hughesjr@centos.org, jpoc@centosproject.org, arrfab@centos.org', 'ppc': 'hughesjr@centos.org, arrfab@centos.org, jpoc@centosproject.org'}
-email_from = 'buildsys@centos.org'
-base_url = 'http://localhost:11081/bstore/repo/'
 
 # Variables from config file
 config = ConfigParser.SafeConfigParser()
 config.read(config_file)
+base_url = config.get('bstore','base_url')
+logfile = config.get('logs','logfile')
+
+email_from = config.get('mail','mail_from')
+notify_list={}
+notify_arches = config.items("mail_rcpts")
+for arch, rcpts in notify_arches:
+  notify_list[arch] = rcpts
+
 mqtt_host = config.get('mqtt', 'host')
 mqtt_port = config.get('mqtt', 'port')
 mqtt_username = config.get('mqtt', 'username')

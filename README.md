@@ -2,6 +2,10 @@
 This git repository will host the code/scripts used to build CentOS distro for various arches
 All processes are launched on all nodes with unprivileged user "reimzul"
 
+## Overview
+![Reimzul schema](/docs/Reimzul.png)
+
+
 ## Controller
 This is the node that runs beanstalkd for the various tubes/queues
 To build a .src.rpm, it has to be uploaded under /srv/reimzul/incoming
@@ -13,10 +17,13 @@ for arch in x86_64 aarch64 armhfp ; do /srv/reimzul/code/reimzul_submit.py -s ti
 ```
 Important to know that there is no need to submit for i386 : it will be done automatically in parallel on the builder doing the x86_64 build, with the same timestamp
 
-The controller has also a dispatcher worker that watches the notify tube, and will :
+The controller has also a dispatcher worker (msg_dispatcher.py) that watches the notify tube, and will :
  * send mails to specific rcpts for each failed/successful build
  * log to /var/log/reimzul/reimzul.log
  * add each job to local mongodb instance
+ * also send json payload over mqtt (so then various subscribers can reuse those payloads, including for example for irc notifications)
+
+To control those notifications, reimzul uses a config file /etc/reimzul/reimzul.ini (see reimzul.ini.sample for reference)
 
 ## Builders (workers)
 
@@ -32,6 +39,5 @@ These nodes are the ones that :
 Central storage node that will accept all build artifacts under specific target repos.
 Worth noting that all communication, including rsyncd, happen over tls (through stunnel)
 It has also a worker itself, just watching the "createrepo" channel.
-When a build finishes and has a successful build, one job is added to the createrepo tube.
-repo metadata is launched through createrepo_c, with multiple workers per process and cache directory
+When a build finishes and has a successful build, one job is added to the createrepo tube (you can have multiple parallel workers for this too) and repo metadata is launched through createrepo_c, with multiple workers per process and cache directory
 
