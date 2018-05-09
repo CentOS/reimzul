@@ -44,10 +44,16 @@ def log2file(jbody):
 def sendmail(jbody):
   arch = jbody['arch']
   email_to = notify_list[arch]
-  root_log = urllib2.urlopen("%s/%s/%s/%s/%s.%s/root.log" % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'],jbody['arch']))
-  root_log = root_log.readlines()
-  build_log = urllib2.urlopen("%s/%s/%s/%s/%s.%s/build.log" % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'],jbody['arch']))
-  build_log = build_log.readlines()
+  try:
+    root_log = urllib2.urlopen("%s/%s/%s/%s/%s.%s/root.log" % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'],jbody['arch']))
+    root_log = root_log.readlines()
+  except:
+    root_log = 'unable to retrieve root.log file so check at the bstore or builder level'
+  try: 
+    build_log = urllib2.urlopen("%s/%s/%s/%s/%s.%s/build.log" % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'],jbody['arch']))
+    build_log = build_log.readlines()
+  except:
+    build_log = 'unable to retrieve build.log file so check at the bstore or builder level'
 
   body = '#### Reimzul build results ##### \n'
   body += ' Builder   : %s \n' % jbody['builder_fqdn']
