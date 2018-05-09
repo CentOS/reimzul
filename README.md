@@ -32,8 +32,19 @@ The controller has also a dispatcher worker (msg_dispatcher.py) that watches the
 
 To control those notifications, reimzul uses a config file /etc/reimzul/reimzul.ini (see reimzul.ini.sample for reference)
 
+### Processes :
+  * msg_dispatcher.py
+
+One reimzul notifier worker is enough to send notifications
+```
+cp systemd/reimzul-notifier.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable reimzul-notifier --now
+
+```
+
+
 ## Builders (workers) : 
- * reimzul_worker.py
 
 These nodes are the ones that :
  * watch for jobs in $arch (exception being x86_64, watching also i386 tube)
@@ -42,14 +53,43 @@ These nodes are the ones that :
  * upload results to bstore node (central http repo holding all the repositories)
  * sending results back in notify tube
 
+### Processes :
+ * reimzul_worker.py 
+
+You can launch as many workers/builder threads you want : there is a .service systemd unit file (see systemd/reimzul-worker@.service) that you can then launch multiple times. For example, let's assume that we want 4 parallel workers : 
+```
+cp systemd/reimzul-worker@.service /etc/systemd/system/
+systemctl daemon-reload
+for i in {1..4} ; do systemctl enable reimzul-worker@${i} --now; done
+
+```
+
 ## Bstore :
- * tosign_worker.py
- * repogen_worker.py
 
 Central storage node that will accept all build artifacts under specific target repos.
 Worth noting that all communication, including rsyncd, happen over tls (through stunnel)
 It has also a worker itself, just watching the "createrepo" channel.
 When a build finishes and has a successful build, one job is added to the createrepo tube (you can have multiple parallel workers for this too) and repo metadata is launched through createrepo_c, with multiple workers per process and cache directory
+
+### Processes
+ * tosign_worker.py (will collect built pkgs in a staging area, waiting for pkgs to be then signed)
+ * repogen_worker.py (will regenerate repodata on each successful build)
+
+You can launch as many repogen workers threads as you want : there is a .service systemd unit file (see systemd/reimzul-repoogen-worker@.service) that you can then launch multiple times. For example, let's assume that we want 3 parallel workers : 
+```
+cp systemd/reimzul-repogen-worker@.service /etc/systemd/system/
+systemctl daemon-reload
+for i in {1..3} ; do systemctl enable reimzul-repogen-worker@${i} --now; done
+
+```
+
+One signer worker is enough (it will just copy the rpm files in a staging area, waiting to be collected for signing)
+```
+cp systemd/reimzul-signer.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable reimzul-signer --now
+
+```
 
 ## Client
 

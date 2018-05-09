@@ -1,0 +1,20 @@
+[Unit]
+Description=Reimzul notifier
+DefaultDependencies=no
+After=network.target
+After=stunnel.target
+
+[Install]
+WantedBy=multi-user.target
+Alias=reimzul-notifier.target
+
+[Service]
+Type=simple
+User=reimzul
+Group=reimzul
+ExecStart=/srv/reimzul/code/msg_dispatcher.py
+ExecStop=/usr/bin/kill -9 $MAINPID
+RemainAfterExit=yes
+Restart=always
+RestartSec=1
+
