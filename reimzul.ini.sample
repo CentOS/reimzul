@@ -5,6 +5,7 @@ base_url = http://localhost:11081/bstore/repo/
 logfile = /var/log/reimzul/reimzul.log
 
 [mail]
+notifications = True
 mail_from = buildsys@mydomain.com
 
 [mail_rcpts]
@@ -18,6 +19,7 @@ ppc64 = me@mydomain.com, you@yourdomain.com
 ppc = me@mydomain.com, you@yourdomain.com
 
 [mqtt]
+notifications = True
 host = mqtt.mydomain.com
 port = 8883
 username = myuser

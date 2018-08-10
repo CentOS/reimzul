@@ -22,11 +22,13 @@ base_url = config.get('bstore','base_url')
 logfile = config.get('logs','logfile')
 
 email_from = config.get('mail','mail_from')
+mail_notifications = config.getboolean('mail','notifications')
 notify_list={}
 notify_arches = config.items("mail_rcpts")
 for arch, rcpts in notify_arches:
   notify_list[arch] = rcpts
 
+mqtt_notifications = config.getboolean('mqtt','notifications')
 mqtt_host = config.get('mqtt', 'host')
 mqtt_port = config.get('mqtt', 'port')
 mqtt_username = config.get('mqtt', 'username')
@@ -134,8 +136,10 @@ def main():
     log2mongo(jbody)
     if jbody['status'] == 'Success' or jbody['status'] == 'Failed':
       if not jbody['scratch']:
-        sendmail(jbody)
-        log2mqtt(jbody)
+        if mail_notifications:
+          sendmail(jbody)
+        if mqtt_notifications:
+          log2mqtt(jbody)
         bs_tosign(bs,jbody)
     job.delete()
 
