@@ -16,11 +16,12 @@ db = client.reimzul
 builds = db.notify_history
 
 query = {}
-query['latest_build'] = True
 query['status'] = results.status
+if results.status != 'Building':
+  query['latest_build'] = True
 if results.target is not None:
   query['target'] = results.target
 
 for job in builds.find( query ):
-  print '%s (arch: %s, status: %s, builder: %s)' % (job['srpm'],job['arch'],job['status'],job['builder_fqdn'])
+  print '%s (arch: %s, status: %s, timestamp: %s,  builder: %s)' % (job['srpm'],job['arch'],job['status'],job['timestamp'],job['builder_fqdn'])
 
