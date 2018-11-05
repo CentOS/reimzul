@@ -125,23 +125,30 @@ def bs_tosign(bs,jbody):
   bs.put(json.dumps(payload))
 
 def main():
-
-  bs = beanstalkc.Connection()
-  bs.watch('notify')
-
+  bs_connection = False
   while True:
-    job = bs.reserve()
-    jbody = json.loads(job.body)
-    log2file(jbody)
-    log2mongo(jbody)
-    if jbody['status'] == 'Success' or jbody['status'] == 'Failed':
-      if not jbody['scratch']:
-        if mail_notifications:
-          sendmail(jbody)
-        if mqtt_notifications:
-          log2mqtt(jbody)
-        bs_tosign(bs,jbody)
-    job.delete()
+    try:
+      if not bs_connection:
+        bs = beanstalkc.Connection(connect_timeout=2)
+        bs.watch('notify')
+      bs_connection = True
+      job = bs.reserve()
+      jbody = json.loads(job.body)
+      log2file(jbody)
+      log2mongo(jbody)
+      if jbody['status'] == 'Success' or jbody['status'] == 'Failed':
+        if not jbody['scratch']:
+          if mail_notifications:
+            sendmail(jbody)
+          if mqtt_notifications:
+            log2mqtt(jbody)
+          bs_tosign(bs,jbody)
+      job.delete()
+    except beanstalkc.SocketError:
+      print "lost connection to beanstalkd, reconnecting"
+      bs_connection = False
+      time.sleep(2)
+      continue
 
 
 if __name__ == '__main__':
