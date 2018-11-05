@@ -7,7 +7,7 @@ import pymongo
 
 parser = argparse.ArgumentParser(description='Reimzul CentOS distributed build query tool')
 
-parser.add_argument('-s', '--status', action="store", dest="status", required=True, help='The status to query for [Building,Done,Success,Failed]')
+parser.add_argument('-s', '--status', action="store", dest="status", required=True, help='The status to query for [Building,Done,Success,Failed,Override]')
 parser.add_argument('-t', '--target', action="store", dest="target", help='The target repo to query for, with the arch specified [example: c7.1810.00.armhfp]')
 
 results = parser.parse_args()
@@ -23,5 +23,8 @@ if results.target is not None:
   query['target'] = results.target
 
 for job in builds.find( query ):
-  print '%s (arch: %s, status: %s, timestamp: %s,  builder: %s)' % (job['srpm'],job['arch'],job['status'],job['timestamp'],job['builder_fqdn'])
+  if results.status == 'Override':
+    print '%s (arch: %s, status: %s, timestamp: %s, target: %s, comment: %s)' % (job['srpm'],job['arch'],job['status'],job['timestamp'],job['target'],job['comment'])
+  else:
+    print '%s (arch: %s, status: %s, timestamp: %s,  builder: %s)' % (job['srpm'],job['arch'],job['status'],job['timestamp'],job['builder_fqdn'])
 

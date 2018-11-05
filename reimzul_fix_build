@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import json
+import sys
+import argparse
+import pymongo
+
+parser = argparse.ArgumentParser(description='Reimzul CentOS distributed build query tool')
+
+parser.add_argument('-s', '--srpm', action="store", dest="srpm", required=True, help='The src.rpm to modify the status for')
+parser.add_argument('-t', '--target', action="store", dest="target", required=True, help='The target repo to modify the srpm for, with the arch specified [example: c7.1810.00.armhfp]')
+parser.add_argument('-a', '--arch', action="store", dest="arch", required=True, help='The architecture [example: "x86_64"]')
+parser.add_argument('-c', '--comment', action="store", dest="comment", required=True, help='The reason why you need to override the status[example: "built against devtoolset-7-llvm"]')
+
+results = parser.parse_args()
+client = pymongo.MongoClient()
+db = client.reimzul  
+builds = db.notify_history
+
+print "Updating mongo ..."
+builds.find_one_and_update({'srpm': results.srpm, 'target': results.target, 'arch': results.arch, 'latest_build': True}, {"$set": {"comment": results.comment , "status": 'Override'}})
