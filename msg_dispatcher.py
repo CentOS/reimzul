@@ -92,6 +92,13 @@ def sendmail(jbody):
 def log2mongo(jbody):
   mongo_client = pymongo.MongoClient()
   db = mongo_client.reimzul
+  builds = db.notify_history
+  if jbody['status'] == 'Success' or jbody['status'] == 'Failed':
+    # Marking previous build as not current
+    builds.find_one_and_update({'arch': jbody['arch'], 'target': jbody['target'], 'srpm': jbody['srpm'], 'latest_build': True}, {"$set": {"latest_build": False}}, sort=[('_id', -1)])
+    # Removing the "building" status on this build
+    builds.find_one_and_update({'arch': jbody['arch'], 'target': jbody['target'], 'srpm': jbody['srpm'], 'timestamp': jbody['timestamp'], 'status': 'Building'}, {"$set": {"status": "Done"}}, sort=[('_id', -1)])
+    jbody['latest_build'] = True
   doc_id = db.notify_history.insert_one(jbody)
   mongo_client.close()
 
