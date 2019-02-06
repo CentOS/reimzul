@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+import time
+import sys
+import json
+import paho.mqtt.client as mqtt
+import os 
+import ConfigParser
+import OpenSSL.crypto as crypto
+import argparse
+
+# Some variables
+config_file = './reimzul.ini'
+
+# Variables from config file
+config = ConfigParser.SafeConfigParser()
+config.read(config_file)
+
+mqtt_host = config.get('mqtt', 'host')
+mqtt_port = config.get('mqtt', 'port')
+mqtt_topic = config.get('mqtt', 'topic')
+mqtt_cacert = config.get('mqtt', 'ca_cert')
+mqtt_tls_cert = config.get('mqtt', 'tls_cert')
+mqtt_tls_key = config.get('mqtt', 'tls_key')
+mqtt_tls_insecure = config.get('mqtt', 'tls_insecure')
+cert = crypto.load_certificate(crypto.FILETYPE_PEM, open(mqtt_tls_cert).read())
+build_requester = cert.get_subject().CN
+
+# Variables from parser
+parser = argparse.ArgumentParser(description='Reimzul CentOS distributed build remote client')
+
+parser.add_argument('-p', '--package', action="store", dest="pkg", required=True, help='The package name to build, coming from SCM - without .git')
+parser.add_argument('-r', '--ref', action="store", dest="git_ref", required=True, help='The Git branch/commit/ref to build the src.rpm from')
+parser.add_argument('-a', '--arch', action="store", dest="arch", required=True, help='Defines the mock architecture to build against [example: x86_64,armhfp,aarch64,i386,ppc64le,ppc64]')
+parser.add_argument('-t', '--target', action="store", dest="target", required=True, help='The target repo to build against/for, without any arch specified [example: c7.1708.u]')
+parser.add_argument('--scratch', action="store_true", help='Will just build the pkg but not prepare it in staging-tosign area')
+
+reimzul_args = parser.parse_args()
+
+def mqtt_on_publish(client,userdata,result):
+    pass
+
+def submit_build(jbody):
+    payload = {}
+    payload['pkg'] = reimzul_args.pkg
+    payload['git_ref'] = reimzul_args.git_ref
+    payload['arch'] = reimzul_args.arch
+    payload['submitter'] = build_requester
+    payload['target'] = reimzul_args.target
+    payload['scratch'] = reimzul_args.scratch
+    payload_msg = json.dumps(payload)
+    mqtt_client_id = '%s@%s-%s' % (payload['submitter'],os.uname()[1],str(time.time()).split('.')[0])
+    mqtt_arch_topic = '%s/%s' % (mqtt_topic,reimzul_args.arch)
+    client = mqtt.Client(client_id=mqtt_client_id, clean_session=False)
+    client.tls_set(ca_certs=mqtt_cacert,certfile=mqtt_tls_cert,keyfile=mqtt_tls_key,tls_version=2)
+    client.tls_insecure_set(mqtt_tls_insecure)
+    client.on_publish = mqtt_on_publish   
+    client.connect(mqtt_host,mqtt_port)
+    client.publish(mqtt_arch_topic, payload_msg)
+    client.disconnect()
+
+def main():
+    jbody = {}
+    jbody['build_requester'] = build_requester
+    submit_build(jbody)
+
+
+if __name__ == '__main__':
+    main()
+

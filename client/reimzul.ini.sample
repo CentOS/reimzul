@@ -1,0 +1,8 @@
+[mqtt]
+host=localhost
+port=8883
+ca_cert=./tls/ca.crt
+tls_cert=./tls/user.crt
+tls_key=./tls/user.key
+tls_insecure = True 
+topic = reimzul/submit
