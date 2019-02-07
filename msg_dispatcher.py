@@ -40,7 +40,7 @@ mqtt_cacert = config.get('mqtt', 'ca_cert')
 def log2file(jbody):
 
   log_file = open(logfile,'a+')
-  log_file.write('[%s] Build job SRPM %s (%s) for arch %s builder %s status %s [%s] (Scratch job: %s) \r\n' % (time.asctime(),jbody['srpm'],jbody['timestamp'],jbody['arch'],jbody['builder_fqdn'],jbody['status'],jbody['evr'],jbody['scratch']) )
+  log_file.write('[%s] Build job SRPM %s (%s) for arch %s builder %s status %s [%s] (Scratch job: %s) submitted by %s \r\n' % (time.asctime(),jbody['srpm'],jbody['timestamp'],jbody['arch'],jbody['builder_fqdn'],jbody['status'],jbody['evr'],jbody['scratch'],jbody['submitter']) )
   log_file.close()
 
 def sendmail(jbody):
@@ -61,6 +61,7 @@ def sendmail(jbody):
   body += ' Builder   : %s \n' % jbody['builder_fqdn']
   body += ' Package   : %s \n' % jbody['pkgname']
   body += ' Timestamp   : %s \n' % jbody['timestamp']
+  body += ' Submitted by   : %s \n' % jbody['submitter']
   body += ' Status    : %s \n' % jbody['status']
   body += ' Full logs available at %s/%s/%s/%s/%s \n\n' % (base_url,jbody['target'],jbody['pkgname'],jbody['timestamp'],jbody['evr'])
   body += '#### Mock output logs ####\n'
@@ -112,6 +113,7 @@ def log2mqtt(jbody):
   payload['target'] = jbody['target']
   payload['arch'] = jbody['arch']
   payload['timestamp'] = jbody['timestamp']
+  payload['submitter'] = jbody['submitter']
   payload_msg = json.dumps(payload)
   client = mqtt.Client(os.uname()[1])
   client.tls_set(mqtt_cacert,tls_version=2)

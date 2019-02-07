@@ -4,6 +4,7 @@ import json
 import beanstalkc
 import sys
 import argparse
+import getpass
 
 # Build queue dictionnary : arched asked and mapped to queue
 build_queues = {'x86_64': 'x86_64', 'armhfp': 'armv7l', 'aarch64': 'aarch64', 'i386': 'i386', 'i686': 'i386', 'ppc64': 'ppc64', 'ppc64le': 'ppc64le', 'ppc': 'ppc'}
@@ -31,10 +32,11 @@ job['arch'] = results.arch
 job['target'] = results.target+'.'+results.arch
 job['disttag'] = results.disttag
 job['scratch'] = results.scratch
+job['submitter'] = getpass.getuser()
 build_queue = build_queues[results.arch]
 
 bs.use(build_queue)
 bs.put(json.dumps(job), priority=bs_priority)
 
-print 'Submitted SRPM %s to build queue %s for target %s (scratch: %s)' % (results.srpm,build_queue,job['target'],job['scratch'])
+print 'Submitted SRPM %s to build queue %s for target %s (scratch: %s) by %s' % (results.srpm,build_queue,job['target'],job['scratch'],job['submitter'])
 
