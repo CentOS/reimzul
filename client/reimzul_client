@@ -28,8 +28,9 @@ build_requester = cert.get_subject().CN
 # Variables from parser
 parser = argparse.ArgumentParser(description='Reimzul CentOS distributed build remote client')
 
-parser.add_argument('-p', '--package', action="store", dest="pkg", required=True, help='The package name to build, coming from SCM - without .git')
-parser.add_argument('-r', '--ref', action="store", dest="git_ref", required=True, help='The Git branch/commit/ref to build the src.rpm from')
+parser.add_argument('-p', '--package', action="store", dest="pkg", required=True, help='The package name to build, coming from SCM/Git [example: httpd]')
+parser.add_argument('-b', '--branch', action="store", dest="git_branch", required=True, help='The Git branch to build the src.rpm from [example: c7]')
+parser.add_argument('-r', '--ref', action="store", dest="git_ref", required=False, help='The Git commit/ref to specifially use (default: HEAD)', default='HEAD')
 parser.add_argument('-a', '--arch', action="store", dest="arch", required=True, help='Defines the mock architecture to build against [example: x86_64,armhfp,aarch64,i386,ppc64le,ppc64]')
 parser.add_argument('-t', '--target', action="store", dest="target", required=True, help='The target repo to build against/for, without any arch specified [example: c7.1708.u]')
 parser.add_argument('--scratch', action="store_true", help='Will just build the pkg but not prepare it in staging-tosign area')
@@ -42,6 +43,7 @@ def mqtt_on_publish(client,userdata,result):
 def submit_build(jbody):
     payload = {}
     payload['pkg'] = reimzul_args.pkg
+    payload['git_branch'] = reimzul_args.git_branch
     payload['git_ref'] = reimzul_args.git_ref
     payload['arch'] = reimzul_args.arch
     payload['submitter'] = build_requester
