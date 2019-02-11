@@ -15,9 +15,10 @@ The following components are used to orchestrate the builds and notifications:
 
 ## Controller
 This is the node that runs beanstalkd for the various tubes/queues
-To build a .src.rpm, it has to be uploaded under /srv/reimzul/incoming
+To submit a pkg, we have two options:
+ * build a .src.rpm, uploaded under /srv/reimzul/incoming and call (local) reimzul_submit.py script (see above)
+ * remotely trigger a build from git (including branch/tag/commit id) through reimzul_client (see above)
 
-From that point, one can use /srv/reimzul/code/reimzul_submit.py (it has embedded help with --help or when called with no args)
 Example when willing to submit same src.rpm (already uploaded !) to multiple arches :
 ```
 for arch in x86_64 aarch64 armhfp ; do /srv/reimzul/code/reimzul_submit.py -s time-1.7-45.el7.src.rpm -d .el7 -a $arch -t c7.1708.u ; done
@@ -33,7 +34,8 @@ The controller has also a dispatcher worker (msg_dispatcher.py) that watches the
 To control those notifications, reimzul uses a config file /etc/reimzul/reimzul.ini (see reimzul.ini.sample for reference)
 
 ### Processes :
-  * reimzul-notifier.py
+  * reimzul-notifier.py (sending notifications for build results, log, mqtt, mails)
+  * reimzul-mqtt-pub.py (process subscribed to some topic to allow remote builds, and that process will retrieve automatically from git and submit)
 
 One reimzul notifier worker is enough to send notifications
 ```
@@ -42,6 +44,15 @@ systemctl daemon-reload
 systemctl enable reimzul-notifier --now
 
 ```
+
+One reimzul mqtt subscriber worker is enough to wait for incoming build requests
+```
+cp systemd/reimzul-mqtt-sub.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable reimzul-mqtt-sub --now
+
+```
+
 
 
 ## Builders (workers) : 
@@ -91,9 +102,11 @@ systemctl enable reimzul-signer --now
 
 ```
 
-## Client
+## Clients
 
-Actually the only way to submit builds to Reimzul is to launch reimzul_submit.py : 
+### Local client (on the controller, so need priv and local access)
+
+Once a .src.rpm is built and available under /srv/reimzul/incoming, you can submit builds to Reimzul is to launch reimzul_submit.py : 
 ```
 usage: reimzul_submit.py [-h] -s SRPM -a ARCH -t TARGET -d DISTTAG [--now]
                          [--scratch]
@@ -115,5 +128,40 @@ optional arguments:
                         tosign area
 ```
 
-That means that first a src.rpm package is prepared in the /srv/reimzul/incoming directory, and then reimzul_submit.py is called to queue the rebuild in the different arch workers/tubes (using beanstalk)
+### Remote Reimzul client (from everywhere, no local access needed)
+
+Assuming that you have a valid x509 TLS cert (from https://accounts.centos.org) and that your CN (username) is authorized for some builds/architectures), you can remotely use the client/reimzul_client python script
+You need:
+  - certificates/CA (usually obtained through centos-cert - centos-packager rpm package) 
+  - python-paho-mqtt rpm installed (needed to submit to MQTT broker)
+  - reimzul.ini file
+
+Then you can call the client like this :
+
+```
+usage: reimzul_client [-h] -p PKG -b GIT_BRANCH [-r GIT_REF] -a ARCH -t TARGET
+                      [--scratch]
+
+Reimzul CentOS distributed build remote client
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PKG, --package PKG
+                        The package name to build, coming from SCM/Git
+                        [example: httpd]
+  -b GIT_BRANCH, --branch GIT_BRANCH
+                        The Git branch to build the src.rpm from [example: c7]
+  -r GIT_REF, --ref GIT_REF
+                        The Git commit/ref to specifially use (default: HEAD)
+  -a ARCH, --arch ARCH  Defines the mock architecture to build against
+                        [example: x86_64,armhfp,aarch64,i386,ppc64le,ppc64]
+  -t TARGET, --target TARGET
+                        The target repo to build against/for, without any arch
+                        specified [example: c7.1708.u]
+  --scratch             Will just build the pkg but not prepare it in staging-
+                        tosign area
+
+``` 
+
+
 

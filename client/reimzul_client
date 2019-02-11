@@ -9,7 +9,7 @@ import OpenSSL.crypto as crypto
 import argparse
 
 # Some variables
-config_file = './reimzul.ini'
+config_file = os.getenv('HOME')+'/.reimzul.ini'
 
 # Variables from config file
 config = ConfigParser.SafeConfigParser()

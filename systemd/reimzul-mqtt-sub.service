@@ -1,0 +1,21 @@
+[Unit]
+Description=Reimzul MQTT subscriber
+DefaultDependencies=no
+After=network.target
+After=stunnel.target
+
+[Install]
+WantedBy=multi-user.target
+Alias=reimzul-mqtt-sub.target
+
+[Service]
+Type=simple
+User=reimzul
+Group=reimzul
+ExecStart=/srv/reimzul/code/reimzul-mqtt-sub.py
+ExecStop=/usr/bin/kill -9 $MAINPID
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=1
+
+

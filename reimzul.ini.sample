@@ -1,6 +1,9 @@
 [bstore]
 base_url = http://localhost:11081/bstore/repo/
 
+[scm]
+git_url = https://git.stg.centos.org
+
 [logs]
 logfile = /var/log/reimzul/reimzul.log
 
@@ -20,10 +23,11 @@ ppc = me@mydomain.com, you@yourdomain.com
 
 [mqtt]
 notifications = True
-host = mqtt.mydomain.com
+host = mqtt.broker.org
 port = 8883
-username = myuser
-password = mypass
-ca_cert = /etc/pki/tls/certs/ca-bundle.crt
-topic = /reimzul/builds
+ca_cert = /etc/reimzul/ca.crt
+tls_cert = /etc/reimzul/reimzul.crt
+tls_key = /etc/reimzul/reimzul.key
+tls_insecure = False
+topic = reimzul
 
