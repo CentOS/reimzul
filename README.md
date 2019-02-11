@@ -33,7 +33,7 @@ The controller has also a dispatcher worker (msg_dispatcher.py) that watches the
 To control those notifications, reimzul uses a config file /etc/reimzul/reimzul.ini (see reimzul.ini.sample for reference)
 
 ### Processes :
-  * msg_dispatcher.py
+  * reimzul-notifier.py
 
 One reimzul notifier worker is enough to send notifications
 ```

@@ -31,10 +31,11 @@ for arch, rcpts in notify_arches:
 mqtt_notifications = config.getboolean('mqtt','notifications')
 mqtt_host = config.get('mqtt', 'host')
 mqtt_port = config.get('mqtt', 'port')
-mqtt_username = config.get('mqtt', 'username')
-mqtt_pass = config.get('mqtt', 'password')
 mqtt_topic = config.get('mqtt', 'topic')
 mqtt_cacert = config.get('mqtt', 'ca_cert')
+mqtt_tls_cert = config.get('mqtt', 'tls_cert')
+mqtt_tls_key = config.get('mqtt', 'tls_key')
+mqtt_tls_insecure = config.get('mqtt', 'tls_insecure')
 
 
 def log2file(jbody):
@@ -115,12 +116,13 @@ def log2mqtt(jbody):
   payload['timestamp'] = jbody['timestamp']
   payload['submitter'] = jbody['submitter']
   payload_msg = json.dumps(payload)
+  target_topic = mqtt_topic+'/builds/results'
   client = mqtt.Client(os.uname()[1])
-  client.tls_set(mqtt_cacert,tls_version=2)
-  client.username_pw_set(mqtt_username,mqtt_pass)
+  client.tls_set(ca_certs=mqtt_cacert,certfile=mqtt_tls_cert,keyfile=mqtt_tls_key,tls_version=2)
+  client.tls_insecure_set(mqtt_tls_insecure)
   client.on_publish = mqtt_on_publish   
   client.connect(mqtt_host,mqtt_port)
-  client.publish(mqtt_topic, payload_msg)
+  client.publish(target_topic, payload_msg)
   client.disconnect()
 
 def bs_tosign(bs,jbody):
