@@ -1,8 +1,8 @@
 [mqtt]
 host=localhost
 port=8883
-ca_cert=./tls/ca.crt
-tls_cert=./tls/user.crt
-tls_key=./tls/user.key
+ca_cert=~/.centos-server-ca.cert
+tls_cert=~/.centos.cert
+tls_key=~/.centos.cert
 tls_insecure = True 
 topic = reimzul/submit
