@@ -9,7 +9,7 @@ You need:
 
 Simple install steps:
 ```
-sudo yum install -y python-paho-mqtt centos-packager
+sudo yum install -y python-paho-mqtt python2-configargparse centos-packager
 test -d ~/bin || mkdir ~/bin
 pushd ~/bin ; curl --location https://raw.githubusercontent.com/CentOS/reimzul/master/client/reimzul_client -O ; chmod +x reimzul_client ; popd
 pushd ~ 
@@ -18,6 +18,7 @@ sed -i "s/<user>/$USER/g" .reimzul.ini
 popd
 
 ```
+Last step: put the correct mqtt broker hostname in that ~/.reimzul.ini file
 
 Don't forget (if you don't have it already) to invoke `centos-cert` to retrieve your TLS cert
 

@@ -55,8 +55,9 @@ def build_srpm(jbody,topic,arch):
     srpm = srpm_path.split('/')[-1]
     shutil.copy(srpm_path, '/srv/reimzul/incoming/')
     os.chdir(jbody['pkg'])
-    check_disttag_cmd = "%s/git/centos-git-common/return_disttag.sh" % (os.getenv('HOME'))
-    jbody['disttag'] = subprocess.check_output(check_disttag_cmd).strip('\n')
+    if len(jbody['disttag']) == 0:
+      check_disttag_cmd = "%s/git/centos-git-common/return_disttag.sh" % (os.getenv('HOME'))
+      jbody['disttag'] = subprocess.check_output(check_disttag_cmd).strip('\n')
     jbody['srpm'] = srpm
     jbody['target'] = jbody['target']+'.'+arch
     shutil.rmtree(tmp_dir)

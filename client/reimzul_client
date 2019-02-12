@@ -30,9 +30,10 @@ parser = argparse.ArgumentParser(description='Reimzul CentOS distributed build r
 
 parser.add_argument('-p', '--package', action="store", dest="pkg", required=True, help='The package name to build, coming from SCM/Git [example: httpd]')
 parser.add_argument('-b', '--branch', action="store", dest="git_branch", required=True, help='The Git branch to build the src.rpm from [example: c7]')
-parser.add_argument('-r', '--ref', action="store", dest="git_ref", required=False, help='The Git commit/ref to specifially use (default: HEAD)', default='HEAD')
+parser.add_argument('-r', '--ref', action="store", dest="git_ref", required=False, help='[optional] The Git commit/ref to specifially use (default: HEAD)', default='HEAD')
 parser.add_argument('-a', '--arch', action="store", dest="arch", required=True, help='Defines the mock architecture to build against [example: x86_64,armhfp,aarch64,i386,ppc64le,ppc64]')
 parser.add_argument('-t', '--target', action="store", dest="target", required=True, help='The target repo to build against/for, without any arch specified [example: c7.1708.u]')
+parser.add_argument('-d', '--disttag', action="store", dest="disttag", required=False, help='[optional] The rpm disttag to override  (example: .el7.centos, default: automatically detected by the builder)', default='')
 parser.add_argument('--scratch', action="store_true", help='Will just build the pkg but not prepare it in staging-tosign area')
 
 reimzul_args = parser.parse_args()
@@ -48,6 +49,7 @@ def submit_build(jbody):
     payload['arch'] = reimzul_args.arch
     payload['submitter'] = build_requester
     payload['target'] = reimzul_args.target
+    payload['disttag'] = reimzul_args.disttag
     payload['scratch'] = reimzul_args.scratch
     payload_msg = json.dumps(payload)
     mqtt_client_id = '%s@%s-%s' % (payload['submitter'],os.uname()[1],str(time.time()).split('.')[0])

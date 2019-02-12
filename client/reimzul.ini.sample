@@ -1,5 +1,5 @@
 [mqtt]
-host=localhost
+host=<broker>
 port=8883
 ca_cert=/home/<user>/.centos-server-ca.cert
 tls_cert=/home/<user>/.centos.cert
