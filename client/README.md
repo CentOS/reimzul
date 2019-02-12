@@ -27,7 +27,7 @@ Then you can call the client like this :
 
 ```
 usage: reimzul_client [-h] -p PKG -b GIT_BRANCH [-r GIT_REF] -a ARCH -t TARGET
-                      [--scratch]
+                      [-d DISTTAG] [--scratch]
 
 Reimzul CentOS distributed build remote client
 
@@ -39,12 +39,17 @@ optional arguments:
   -b GIT_BRANCH, --branch GIT_BRANCH
                         The Git branch to build the src.rpm from [example: c7]
   -r GIT_REF, --ref GIT_REF
-                        The Git commit/ref to specifially use (default: HEAD)
+                        [optional] The Git commit/ref to specifially use
+                        (default: HEAD)
   -a ARCH, --arch ARCH  Defines the mock architecture to build against
                         [example: x86_64,armhfp,aarch64,i386,ppc64le,ppc64]
   -t TARGET, --target TARGET
                         The target repo to build against/for, without any arch
                         specified [example: c7.1708.u]
+  -d DISTTAG, --disttag DISTTAG
+                        [optional] The rpm disttag to override (example:
+                        .el7.centos, default: automatically detected by the
+                        builder)
   --scratch             Will just build the pkg but not prepare it in staging-
                         tosign area
 
