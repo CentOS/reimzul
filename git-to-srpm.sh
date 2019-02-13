@@ -72,7 +72,11 @@ git checkout ${git_branch}
 test -d ~/git/centos-git-common || (mkdir ~/git; pushd ~/git ; git clone https://git.centos.org/r/centos-git-common.git ; popd)
 # Downloading SOURCES
 # Corner case if we want to download from base branch and not for SIG
-branch=$(echo ${git_branch}|cut -f 1 -d '-')
+if [[ $git_branch = *sig-* ]] ; then 
+  branch=$(echo ${git_branch}|cut -f 1 -d '-')
+else
+  branch=${git_branch}
+fi
 ~/git/centos-git-common/get_sources.sh -q -b ${branch} --surl ${git_url}/sources
 
 # optional if we got a git hash/tag commit id
