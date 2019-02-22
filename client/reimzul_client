@@ -6,6 +6,7 @@ import paho.mqtt.client as mqtt
 import os 
 import ConfigParser
 import OpenSSL.crypto as crypto
+import ssl
 import argparse
 
 # Some variables
@@ -55,7 +56,7 @@ def submit_build(jbody):
     mqtt_client_id = '%s@%s-%s' % (payload['submitter'],os.uname()[1],str(time.time()).split('.')[0])
     mqtt_arch_topic = '%s/%s' % (mqtt_topic,reimzul_args.arch)
     client = mqtt.Client(client_id=mqtt_client_id, clean_session=False)
-    client.tls_set(ca_certs=mqtt_cacert,certfile=mqtt_tls_cert,keyfile=mqtt_tls_key,tls_version=2)
+    client.tls_set(ca_certs=mqtt_cacert,certfile=mqtt_tls_cert,keyfile=mqtt_tls_key,tls_version=ssl.PROTOCOL_TLSv1_2)
     client.tls_insecure_set(mqtt_tls_insecure)
     client.on_publish = mqtt_on_publish   
     client.connect(mqtt_host,mqtt_port)
