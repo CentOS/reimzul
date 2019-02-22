@@ -47,7 +47,7 @@ def build_srpm(jbody,topic,arch):
   jbody['arch'] = arch
   tmp_dir = tempfile.mkdtemp()
   os.chdir(tmp_dir)
-  srpm_build_cmd = "/srv/reimzul/code/git-to-srpm.sh -p %s -b %s -c %s -s %s" % (jbody['pkg'],jbody['git_branch'],jbody['git_ref'],git_url)
+  srpm_build_cmd = "/srv/reimzul/code/git-to-srpm.sh -p %s -b %s -c %s -s %s -d '%s'" % (jbody['pkg'],jbody['git_branch'],jbody['git_ref'],git_url,jbody['disttag'])
   srpm_build = subprocess.call( srpm_build_cmd, shell = True)
   if srpm_build == 0:
     print 'srpm built ok'

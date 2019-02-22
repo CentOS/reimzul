@@ -17,6 +17,7 @@ You need to call the script like this : $0 -arguments
  -p : Package to build a src.rpm for [required, example: httpd]
  -b : Git branch to use [required, example : c7]
  -c : Git tag/commit [optional, example: c56b744c9b851f31294d2b2eb25c01e597901baa]
+ -d : dist tag to use [optional, if not specified, will try to autodetect]
  -s : Sources URL base path (defaults to https://git.centos.org/)
  -h : display this help
 EOF
@@ -30,7 +31,7 @@ if [ -z "$1" ] ; then
 fi
 }
 
-while getopts "hp:b:c:s:" option
+while getopts "hp:b:c:d:s:" option
 do
   case ${option} in
     h)
@@ -45,6 +46,9 @@ do
       ;;
     c)
       git_commit=${OPTARG}
+      ;;
+    d)
+      dist_tag=${OPTARG}
       ;;
     s)
       git_url=${OPTARG}
@@ -84,7 +88,12 @@ if [ ! -z ${git_commit} ] ;then
   git checkout ${git_commit}
 fi
 
-disttag=$(~/git/centos-git-common/return_disttag.sh)
+if [ -z ${dist_tag} ]; then
+  disttag=$(~/git/centos-git-common/return_disttag.sh)
+else
+  export disttag=$dist_tag
+fi
+
 srpm_path=$(rpmbuild -bs --nodeps --define "%_topdir `pwd`" --define "dist ${disttag}" SPECS/${pkg}.spec|cut -f 2 -d ':')
 srpm_name=$(echo $srpm_path|rev|cut -f 1 -d '/'|rev)
 echo "SRPM: $srpm_name"
