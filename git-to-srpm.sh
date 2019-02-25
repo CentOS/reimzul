@@ -18,7 +18,8 @@ You need to call the script like this : $0 -arguments
  -b : Git branch to use [required, example : c7]
  -c : Git tag/commit [optional, example: c56b744c9b851f31294d2b2eb25c01e597901baa]
  -d : dist tag to use [optional, if not specified, will try to autodetect]
- -s : Sources URL base path (defaults to https://git.centos.org/)
+ -u : URL base path for Sources (defaults to https://git.centos.org/)
+ -s : Sources directory (defaults to "git branch" but can be overriden)
  -h : display this help
 EOF
 
@@ -31,7 +32,7 @@ if [ -z "$1" ] ; then
 fi
 }
 
-while getopts "hp:b:c:d:s:" option
+while getopts "hp:b:c:d:u:s:" option
 do
   case ${option} in
     h)
@@ -50,8 +51,11 @@ do
     d)
       dist_tag=${OPTARG}
       ;;
-    s)
+    u)
       git_url=${OPTARG}
+      ;;
+    s)
+      sources_dir=${OPTARG}
       ;;
     ?)
       usage
@@ -76,10 +80,10 @@ git checkout ${git_branch}
 test -d ~/git/centos-git-common || (mkdir ~/git; pushd ~/git ; git clone https://git.centos.org/r/centos-git-common.git ; popd)
 # Downloading SOURCES
 # Corner case if we want to download from base branch and not for SIG
-if [[ $git_branch = *sig-* ]] ; then 
-  branch=$(echo ${git_branch}|cut -f 1 -d '-')
-else
+if [ -z ${sources_dir} ] ; then
   branch=${git_branch}
+else
+  branch=${sources_dir}
 fi
 ~/git/centos-git-common/get_sources.sh -q -b ${branch} --surl ${git_url}/sources
 
@@ -94,7 +98,7 @@ else
   export disttag=$dist_tag
 fi
 
-srpm_path=$(rpmbuild -bs --nodeps --define "%_topdir `pwd`" --define "dist ${disttag}" SPECS/${pkg}.spec|cut -f 2 -d ':')
-srpm_name=$(echo $srpm_path|rev|cut -f 1 -d '/'|rev)
+rpmbuild -bs --nodeps --define "%_topdir `pwd`" --define "dist ${disttag}" SPECS/${pkg}.spec
+srpm_name=$(find ./ -iname '*src.rpm'|rev|cut -f 1 -d '/'|rev)
 echo "SRPM: $srpm_name"
 

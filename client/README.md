@@ -27,7 +27,7 @@ Then you can call the client like this :
 
 ```
 usage: reimzul_client [-h] -p PKG -b GIT_BRANCH [-r GIT_REF] -a ARCH -t TARGET
-                      [-d DISTTAG] [--scratch]
+                      [-d DISTTAG] [-s SOURCESDIR] [--scratch]
 
 Reimzul CentOS distributed build remote client
 
@@ -50,6 +50,10 @@ optional arguments:
                         [optional] The rpm disttag to override (example:
                         .el7.centos, default: automatically detected by the
                         builder)
+  -s SOURCESDIR, --sourcesdir SOURCESDIR
+                        [optional] Which directory in lookaside to use as
+                        sources dir (example: c7, default: reimzul will use
+                        the branch name)
   --scratch             Will just build the pkg but not prepare it in staging-
                         tosign area
 

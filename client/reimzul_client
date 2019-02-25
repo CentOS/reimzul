@@ -35,6 +35,7 @@ parser.add_argument('-r', '--ref', action="store", dest="git_ref", required=Fals
 parser.add_argument('-a', '--arch', action="store", dest="arch", required=True, help='Defines the mock architecture to build against [example: x86_64,armhfp,aarch64,i386,ppc64le,ppc64]')
 parser.add_argument('-t', '--target', action="store", dest="target", required=True, help='The target repo to build against/for, without any arch specified [example: c7.1708.u]')
 parser.add_argument('-d', '--disttag', action="store", dest="disttag", required=False, help='[optional] The rpm disttag to override  (example: .el7.centos, default: automatically detected by the builder)', default='')
+parser.add_argument('-s', '--sourcesdir', action="store", dest="sourcesdir", required=False, help='[optional] Which directory in lookaside to use as sources dir  (example: c7, default: reimzul will use the branch name)', default='')
 parser.add_argument('--scratch', action="store_true", help='Will just build the pkg but not prepare it in staging-tosign area')
 
 reimzul_args = parser.parse_args()
@@ -51,6 +52,7 @@ def submit_build(jbody):
     payload['submitter'] = build_requester
     payload['target'] = reimzul_args.target
     payload['disttag'] = reimzul_args.disttag
+    payload['sources_dir'] = reimzul_args.sourcesdir
     payload['scratch'] = reimzul_args.scratch
     payload_msg = json.dumps(payload)
     mqtt_client_id = '%s@%s-%s' % (payload['submitter'],os.uname()[1],str(time.time()).split('.')[0])
