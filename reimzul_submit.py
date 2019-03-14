@@ -7,7 +7,7 @@ import argparse
 import getpass
 
 # Build queue dictionnary : arched asked and mapped to queue
-build_queues = {'x86_64': 'x86_64', 'armhfp': 'armv7l', 'aarch64': 'aarch64', 'i386': 'i386', 'i686': 'i386', 'ppc64': 'ppc64', 'ppc64le': 'ppc64le', 'ppc': 'ppc'}
+build_queues = {'x86_64': 'x86_64', 'noarch': 'noarch', 'armhfp': 'armv7l', 'aarch64': 'aarch64', 'i386': 'i386', 'i686': 'i386', 'ppc64': 'ppc64', 'ppc64le': 'ppc64le', 'ppc': 'ppc'}
 
 parser = argparse.ArgumentParser(description='Reimzul CentOS distributed build client')
 
