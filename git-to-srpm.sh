@@ -98,7 +98,21 @@ else
   export disttag=$dist_tag
 fi
 
-rpmbuild -bs --nodeps --define "%_topdir `pwd`" --define "dist ${disttag}" SPECS/${pkg}.spec
+if [ -f SPECS/${pkg}.spec ];then
+  rpmbuild -bs --nodeps --define "%_topdir `pwd`" --define "dist ${disttag}" SPECS/${pkg}.spec
+elif [ -f .${pkg}.metadata ];then
+  spec_name=$(find ./SPECS/ -iname '*.spec'|head -n1|rev|cut -f 1 -d '/'|rev)
+  if [ -f SPECS/${spec_name} ];then
+    spec_name=${spec_name:0:-5}
+    spec_len=${#spec_name}
+    pkg_len=${#pkg}
+    dif=$((pkg_len-spec_len-1))
+    if [ "${pkg:$dif}" = "-${spec_name}" ];then
+      scl=${pkg:0:$dif}
+      rpmbuild -bs --nodeps --define "%_topdir `pwd`" --define "dist ${disttag}" --define "%scl $scl" SPECS/${spec_name}.spec
+    fi
+  fi
+fi
 srpm_name=$(find ./ -iname '*src.rpm'|rev|cut -f 1 -d '/'|rev)
 echo "SRPM: $srpm_name"
 
