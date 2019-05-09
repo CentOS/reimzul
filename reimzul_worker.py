@@ -98,7 +98,7 @@ def main():
           bs_notify(bs,jbody)
 
      # Specific kernel case (needs noarch builds after x86_64,i386 ones)
-      if jbody['pkgname'] == 'kernel' or jbody['pkgname'] == 'kernel-plus':
+      if (jbody['pkgname'] == 'kernel' or jbody['pkgname'] == 'kernel-plus') and (builder_arch == 'x86_64' or builder_arch == 'i386'):
         jbody['arch'] = 'noarch'
         jbody['status'] = 'Building'
         bs_notify(bs,jbody)
