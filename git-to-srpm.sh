@@ -74,7 +74,7 @@ fi
 test -d ${pkg} && rm -Rf ${pkg}
 
 # Git clone 
-git clone ${git_url}/r/rpms/${pkg}.git
+git clone -b ${git_branch} --single-branch ${git_url}/r/rpms/${pkg}.git
 cd ${pkg}
 git checkout ${git_branch}
 test -d ~/git/centos-git-common || (mkdir ~/git; pushd ~/git ; git clone https://git.centos.org/r/centos-git-common.git ; popd)
