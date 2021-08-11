@@ -4,12 +4,13 @@
 Assuming that you have a valid x509 TLS cert (from https://accounts.centos.org) and that your CN (username) is authorized for some builds/architectures), you can remotely use the client/reimzul_client python script
 You need:
   - certificates/CA (usually obtained through centos-cert - centos-packager rpm package) 
-  - python-paho-mqtt rpm installed (needed to submit to MQTT broker)
+  - python3-paho-mqtt rpm installed (needed to submit to MQTT broker)
+  - python3-configparser
   - ~/.reimzul.ini file
 
 Simple install steps:
 ```
-sudo yum install -y python-paho-mqtt python2-configargparse centos-packager
+sudo yum install -y python3-paho-mqtt python3-configparser centos-packager
 test -d ~/bin || mkdir ~/bin
 pushd ~/bin ; curl --location https://raw.githubusercontent.com/CentOS/reimzul/master/client/reimzul_client -O ; chmod +x reimzul_client ; popd
 pushd ~ 
